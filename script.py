@@ -129,7 +129,7 @@ if EMAIL_REMETENTE and EMAIL_SENHA and EMAIL_DESTINATARIO:
     for tentativa in range(1, max_tentativas + 1):
         try:
             print(f"🔗 [Tentativa {tentativa}/{max_tentativas}] Conectando ao servidor SMTP do Gmail...")
-            server = smtplib.SMTP('://gmail.com', 587, timeout=20)
+            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=20)
             server.ehlo()
             server.starttls()
             server.ehlo()
