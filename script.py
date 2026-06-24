@@ -16,7 +16,6 @@ headers = {
 }
 
 html_conteudo = "<h2>🚀 Relatório Semanal de Dados - Agência Weedoo</h2>"
-
 # --- FRENTE 1: CIENTÍFICA (PubMed, Nature, The Lancet via Europe PMC) ---
 html_conteudo += "<h3>🔬 FRENTE CIENTÍFICA (PubMed, Nature, The Lancet)</h3>"
 for query in KEYWORDS_SCI:
@@ -30,7 +29,7 @@ for query in KEYWORDS_SCI:
             journal = art.get("journalTitle", "Periódico Não Identificado")
             pmid = art.get("pmid", "")
             link = f"https://nih.gov{pmid}/" if pmid else "#"
-            html_conteudo += f"<p><b>[{journal}]</b> {title}<br><a href='{link}'>Acessar artigo</a></p>"
+            html_conteudo += f"<p><b>[{journal}]</b> {title}<br><a href='{link}'>Acessar artigo científico</a></p>"
     except:
         pass
 
@@ -57,35 +56,54 @@ try:
                     
                     html_conteudo += f"<p>🚨 <b>Anvisa 2026 (Oficial):</b> {title_text}<br><i>{desc_text}</i><br><a href='{link_completo}'>Acessar Notícia</a></p>"
                     found_reg = True
-except Exception as e:
-    print(f"⚠️ Portal da Anvisa instável. Ativando plano de contingência Google News...")
+except:
+    print("⚠️ Portal da Anvisa instável. Ativando plano de contingência Google News...")
 
-# Tentativa 2 / Backup: Google News (Acionado se a Anvisa falhar ou não trouxer resultados)
+# Tentativa 2 / Backup: Google News Corrigido
 if not found_reg:
     html_conteudo += "<p><i>Nota: Portal oficial da Anvisa sem novas ocorrências diretas. Ativando redundância via Google News...</i></p>"
     try:
-        # Busca no Google News focada em termos regulatórios do Brasil
         termo_busca = "Anvisa Cannabis RDC"
         encoded_term = urllib.parse.quote(termo_busca)
+        # URL oficial e estruturada do Google News RSS
         gn_url = f"https://google.com{encoded_term}&hl=pt-BR&gl=BR&ceid=BR:pt-419"
         
         gn_res = requests.get(gn_url, headers=headers, timeout=15)
-        soup = BeautifulSoup(gn_res.content, "xml") # Processa o feed RSS em formato XML
+        soup = BeautifulSoup(gn_res.content, "xml")
         items = soup.find_all("item")
         
-        for item in items[:4]: # Captura as 4 principais notícias da imprensa nacional
+        for item in items[:4]:
             title = item.find("title").text if item.find("title") else "Notícia sem título"
             link = item.find("link").text if item.find("link") else "#"
-            pub_date = item.find("pubDate").text[:16] if item.find("pubDate") else ""
             source = item.find("source").text if item.find("source") else "Imprensa"
             
-            html_conteudo += f"<p>📰 <b>{source} ({pub_date}):</b> {title}<br><a href='{link}'>Ler matéria na íntegra</a></p>"
+            html_conteudo += f"<p>📰 <b>{source}:</b> {title}<br><a href='{link}'>Ler matéria na íntegra</a></p>"
             found_reg = True
     except Exception as e:
         html_conteudo += f"<p>Erro ao carregar contingência do Google News: {str(e)}</p>"
 
 if not found_reg:
     html_conteudo += "<p>Nenhuma atualização regulatória encontrada nos canais oficiais ou na imprensa esta semana.</p>"
+
+# --- FRENTE 3: MERCADO GLOBAL (MJBizDaily) ---
+html_conteudo += "<h3>📈 FRENTE DE MERCADO (MJBizDaily)</h3>"
+try:
+    mjbiz_res = requests.get("https://mjbizdaily.com", headers=headers, timeout=15)
+    soup = BeautifulSoup(mjbiz_res.content, "html.parser")
+    posts = soup.find_all("article")
+    found_mkt = False
+    for post in posts[:10]: # Expandido para verificar os últimos 10 posts globais
+        title_tag = post.find("h2") or post.find("h3")
+        if title_tag:
+            title_text = title_tag.get_text().strip()
+            if any(key.lower() in title_text.lower() for key in KEYWORDS_MKT):
+                link = post.find("a")["href"] if post.find("a") else "#"
+                html_conteudo += f"<p>🌐 <b>Tendência Global:</b> {title_text}<br><a href='{link}'>Ler análise de mercado</a></p>"
+                found_mkt = True
+    if not found_mkt:
+        html_conteudo += "<p>Estabilidade detectada no monitoramento do mercado global de Cannabis.</p>"
+except:
+    html_conteudo += "<p>Erro temporário ao acessar o feed do MJBizDaily.</p>"
 
 # --- FRENTE 3: MERCADO GLOBAL (MJBizDaily) ---
 html_conteudo += "<h3>📈 FRENTE DE MERCADO (MJBizDaily)</h3>"
