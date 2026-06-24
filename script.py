@@ -63,10 +63,10 @@ except:
 if not found_reg:
     html_conteudo += "<p><i>Nota: Portal oficial da Anvisa sem novas ocorrências diretas. Ativando redundância via Google News...</i></p>"
     try:
-        termo_busca = "Anvisa Cannabis RDC 1015"
+        termo_busca = "anvisa canabis rdc"
         encoded_term = urllib.parse.quote(termo_busca)
         # URL oficial e estruturada do Google News RSS
-        gn_url = "https://news.google.com/"
+        gn_url = "https://news.google.com/search?q=anvisa%20canabis%20rdc&hl=pt-BR&gl=BR&ceid=BR%3Apt-419"
         
         gn_res = requests.get(gn_url, headers=headers, timeout=15)
         soup = BeautifulSoup(gn_res.content, "xml")
