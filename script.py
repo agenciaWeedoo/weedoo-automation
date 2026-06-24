@@ -108,7 +108,7 @@ except:
     html_conteudo += "<p>Erro temporário ao acessar o feed do MJBizDaily.</p>"
 
 # ==============================================================================
-# ENVIO DE E-MAIL AUTOMÁTICO (Utilizando as credenciais do GitHub Secrets)
+# ENVIO DE E-MAIL AUTOMÁTICO (Com trava de reconexão automática para falhas de rede)
 # ==============================================================================
 EMAIL_REMETENTE = os.environ.get("EMAIL_REMETENTE")
 EMAIL_SENHA = os.environ.get("EMAIL_SENHA")
@@ -122,19 +122,31 @@ if EMAIL_REMETENTE and EMAIL_SENHA and EMAIL_DESTINATARIO:
     
     msg.attach(MIMEText(html_conteudo, 'html'))
     
-    try:
-        print("🔗 Conectando ao servidor SMTP do Gmail...")
-        server = smtplib.SMTP('://gmail.com', 587, timeout=15)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        print("🔐 Fazendo login com a Senha de App...")
-        server.login(EMAIL_REMETENTE, EMAIL_SENHA)
-        server.sendmail(EMAIL_REMETENTE, EMAIL_DESTINATARIO, msg.as_string())
-        server.quit()
-        print("📧 E-mail semanal enviado com sucesso para o CEO!")
-    except Exception as e:
-        print(f"❌ Erro crítico no disparo do e-mail: {str(e)}")
-        raise e
+    import time
+    max_tentativas = 3
+    conectado = False
+    
+    for tentativa in range(1, max_tentativas + 1):
+        try:
+            print(f"🔗 [Tentativa {tentativa}/{max_tentativas}] Conectando ao servidor SMTP do Gmail...")
+            server = smtplib.SMTP('://gmail.com', 587, timeout=20)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            print("🔐 Fazendo login com a Senha de App...")
+            server.login(EMAIL_REMETENTE, EMAIL_SENHA)
+            server.sendmail(EMAIL_REMETENTE, EMAIL_DESTINATARIO, msg.as_string())
+            server.quit()
+            print("📧 E-mail semanal enviado com sucesso para o CEO!")
+            conectado = True
+            break
+        except Exception as e:
+            print(f"⚠️ Alerta: Conexão falhou na tentativa {tentativa}. Motivo: {str(e)}")
+            if tentativa < max_tentativas:
+                print("⏳ Aguardando 5 segundos para tentar novamente...")
+                time.sleep(5)
+            else:
+                print("❌ Todas as tentativas de conexão de rede falharam.")
+                raise e
 else:
     print("⚠️ Configurações de e-mail ausentes no GitHub Secrets.")
