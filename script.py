@@ -39,7 +39,7 @@ found_reg = False
 
 # Tentativa 1: Site Oficial da Anvisa 2026
 try:
-    url_anvisa_2026 = "https://www.gov.br"
+    url_anvisa_2026 = "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026"
     anvisa_res = requests.get(url_anvisa_2026, headers=headers, timeout=15)
     if anvisa_res.status_code == 200:
         soup = BeautifulSoup(anvisa_res.content, "html.parser")
@@ -66,7 +66,7 @@ if not found_reg:
         termo_busca = "Anvisa Cannabis RDC"
         encoded_term = urllib.parse.quote(termo_busca)
         # URL oficial e estruturada do Google News RSS
-                gn_url = "https://news.google.com/"
+        gn_url = "https://news.google.com/"
         
         gn_res = requests.get(gn_url, headers=headers, timeout=15)
         soup = BeautifulSoup(gn_res.content, "xml")
