@@ -66,7 +66,7 @@ if not found_reg:
         termo_busca = "Anvisa Cannabis RDC"
         encoded_term = urllib.parse.quote(termo_busca)
         # URL oficial e estruturada do Google News RSS
-        gn_url = "https://news.google.com/"
+        gn_url = "https://news.google.com/search?q=anvisa%20canabis%20rdc&hl=pt-BR&gl=BR&ceid=BR%3Apt-419"
         
         gn_res = requests.get(gn_url, headers=headers, timeout=15)
         soup = BeautifulSoup(gn_res.content, "xml")
