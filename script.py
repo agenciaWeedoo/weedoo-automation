@@ -81,14 +81,15 @@ if EMAIL_REMETENTE and EMAIL_SENHA and EMAIL_DESTINATARIO:
     
     msg.attach(MIMEText(html_conteudo, 'html'))
     
-    try:
-        server = smtplib.SMTP('://gmail.com', 505)
-        server.starttls()
+        try:
+        # Configuração corrigida com a porta oficial 587 do Gmail
+        server = smtplib.SMTP('://gmail.com', 587)
+        server.ehlo()
+        server.starttls() # Ativa a criptografia de segurança
+        server.ehlo()
         server.login(EMAIL_REMETENTE, EMAIL_SENHA)
         server.sendmail(EMAIL_REMETENTE, EMAIL_DESTINATARIO, msg.as_string())
         server.quit()
         print("📧 E-mail semanal enviado com sucesso para o CEO!")
     except Exception as e:
         print(f"❌ Erro ao enviar e-mail: {e}")
-else:
-    print("⚠️ Configurações de e-mail ausentes.")
