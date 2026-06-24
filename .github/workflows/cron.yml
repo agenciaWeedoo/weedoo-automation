@@ -1,0 +1,28 @@
+name: Weedoo Weekly Automation
+
+on:
+  schedule:
+    - cron: '0 8 * * 1' # Executa toda segunda-feira exatamente às 08:00 AM UTC
+  workflow_dispatch: # Permite que você clique em um botão para rodar na hora que quiser
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar o Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Executar Automação e Enviar E-mail
+        env:
+          EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
+          EMAIL_SENHA: ${{ secrets.EMAIL_SENHA }}
+          EMAIL_DESTINATARIO: ${{ secrets.EMAIL_DESTINATARIO }}
+        run: python script.py
